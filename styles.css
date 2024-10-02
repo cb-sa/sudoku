@@ -2,7 +2,7 @@
 
 :root {
     font-family: "Inter", sans-serif;
-    font-size: max(2vw, 25px);
+    font-size: min(3.5vw, 25px);
     text-align: center;
 }
 
@@ -35,3 +35,6 @@
     background-color: #2f2f2f;
 }
 
+input:read-only {
+    background-color: #dadada;
+}

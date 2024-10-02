@@ -1,4 +1,4 @@
-let state = [
+var state = [
     [
         undefined, undefined, undefined,
         undefined, undefined, undefined,
@@ -106,8 +106,8 @@ function removeItem(item, array) {
 //https://stackoverflow.com/questions/5767325/how-can-i-remove-a-specific-item-from-an-array-in-javascript
 
 function randomId() {
-    randomBox = abc[Math.floor(Math.random() * 8)]
-    randomCell = Math.floor(Math.random() * 8)
+    randomBox = abc[Math.floor(Math.random() * 9)]
+    randomCell = Math.floor(Math.random() * 9)
 
     return randomBox+String(randomCell)
 }
@@ -115,36 +115,156 @@ function randomId() {
 function cellCandiates(cellId) {
     let candiates = ['1','2','3','4','5','6','7','8','9']
     let box = cellId.split('')[0]
+    let boxId = cellId.split('')[1]
 
     // Remove candiates already present within cell
     for (let i = 0; i < 9; i++) {
         let compCell = document.getElementById(box+String(i))
 
-        if (cellId !== compCell) {
+        if (cellId !== compCell.id) {
             if (candiates.includes(compCell.value)) {
                 candiates = removeItem(compCell.value, candiates)
             }
         }
     }
 
-    //Remove candiates in rows
+    //Remove candiates in bands (horizontal)
+    
+    const band1 = ['a','b','c']
+    const band2 = ['d','e','f']
+    const band3 = ['g','h','i']
+
+    let bands = []
+
+    if (band1.includes(box)) {
+        bands = removeItem(box, band1)
+    } else if (band2.includes(box)) {
+        bands = removeItem(box, band2)
+    } else if (band3.includes(box)) {
+        bands = removeItem(box, band3)
+    }
+
+    let boxY = (boxId-boxId%3)
+
+    for (let i = 0; i < bands.length; i++) {
+        for (let j = 0; j < 3; j++) {
+            compCell = document.getElementById(bands[i]+String(boxY+j))
+
+            if (candiates.includes(compCell.value)) {
+                candiates = removeItem(compCell.value, candiates)
+            }
+        }
+    }
+
+    //Remove candiates in stacks (vertical)
+
+    const stack1 = ['a','d','g']
+    const stack2 = ['b','e','h']
+    const stack3 = ['c','f','i']
+
+    let stacks = []
+
+    if (stack1.includes(box)) {
+        stacks = removeItem(box, stack1)
+    } else if (stack2.includes(box)) {
+        stacks = removeItem(box, stack2)
+    } else if (stack3.includes(box)) {
+        stacks = removeItem(box, stack3)
+    }
+
+    let boxX = boxId%3
+
+    for (let i = 0; i < stacks.length; i++) {
+        for (let j = 0; j < 3; j++) {
+            compCell = document.getElementById(stacks[i]+String(boxX+(j*3)))
+
+            if (candiates.includes(compCell.value)) {
+                candiates = removeItem(compCell.value, candiates)
+            }
+        }
+    }
 
     return candiates
 }
 
-function genBoard() {
-
-    const diagBoxes = 'aei'
-    for (let i = 0; i < 3; i++) {
-        let digits = [1,2,3,4,5,6,7,8,9]
+function board2List() {
+    for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
-            let cellId = diagBoxes[i]+String(j)
-            let index = Math.floor(Math.random()*digits.length)
+            let cellId = abc[i]+String(j)
 
-            document.getElementById(cellId).value = digits[index]
-            digits.splice(index, 1)
+            state[i][j] = document.getElementById(cellId).value
         }
     }
 }
 
-genBoard()
+function list2Board() {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            let cellId = abc[i]+String(j)
+
+            document.getElementById(cellId).value = state[i][j]
+        }
+    }
+}
+
+function fillBoard(cluesRemoved) {
+
+    //Empty board before
+    for (let k = 0; k < 9; k++) {
+        for (let l = 0; l < 9; l++) {
+            document.getElementById(abc[k]+String(l)).value = ''
+        }
+    }
+
+    let iterations = 0
+    let validBoard = false
+
+    boardLoop:
+    while (validBoard == false) {
+        iterations += 1
+
+        console.log(iterations)
+        //Loop through board filling in candidates
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                let cellId = abc[i]+String(j)
+                let candiates = cellCandiates(cellId)
+
+                if (candiates.length !== 0) {
+                    //Fill cell
+                    let newValue = candiates[Math.floor(Math.random()*candiates.length)]
+                    document.getElementById(cellId).value = newValue
+                    document.getElementById(cellId).readOnly = true
+
+                } else {
+                    //Cell cannot be filled, reset and try again
+                    for (let k = 0; k < 9; k++) {
+                        for (let l = 0; l < 9; l++) {
+                            document.getElementById(abc[k]+String(l)).value = ''
+                        }
+                    }
+                    continue boardLoop
+                }
+            }
+        }
+
+        console.log('Valid board found!')
+        validBoard = true
+    }
+
+    //Board is now filled
+
+    board2List()
+
+    for (let i = 0; i < cluesRemoved; i++) {
+        let cellId = randomId()
+
+        document.getElementById(cellId).value = ''
+        document.getElementById(cellId).readOnly = false
+    }
+
+}
+
+
+
+fillBoard(51)

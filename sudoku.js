@@ -40,6 +40,8 @@ var state = [
     ]
 ]
 
+var selectedCell = 'a0'
+
 const board = document.getElementById('game')
 
 
@@ -48,27 +50,30 @@ function duplicateExists(arr) {
 }
 //https://stackoverflow.com/questions/49215358/checking-for-duplicate-strings-in-javascript-array
 
-function winDetection() {
+function verifyNumbers() {
+    let count = [0, 0, 0, 0, 0, 0, 0, 0, 0]
     for (let i = 0; i < 9; i++) {
-        let boxArray = []
         for (let j = 0; j < 9; j++) {
             let cellId = abc[i]+String(j)
-            let currentCell = document.getElementById(cellId)
 
-            boxArray.push(currentCell.value)
-            
-            if (duplicateExists(boxArray)) {
-                console.log(`Invaild Cell: ${currentCell.id}`)
+            if (!document.getElementById(cellId).value == ''){
+                count[Number(document.getElementById(cellId).value)-1]++
+                if (!cellCandiates(cellId).includes(document.getElementById(cellId).value) && !document.getElementById(cellId).hasAttribute('readonly')) {
+                    document.getElementById(cellId).style.color = 'red'
+                } else {
+                    document.getElementById(cellId).style.color = ''
+                }
             }
         }
     }
+
+    console.log(count)
 }
 
 const abc = 'abcdefghijklmnopqrstuvwxyz'
 
 for (let i = 0; i < 9; i++) {
     let newBox = document.createElement('div')
-    newBox.id = 'b'+i
     newBox.className = 'box'
     for (let j = 0; j < 9; j++) {
         let newCell = document.createElement('div')
@@ -80,9 +85,34 @@ for (let i = 0; i < 9; i++) {
         let newCellText = document.createElement('input')
         newCellText.type = 'text'
         newCellText.id = cellId
+        newCellText.addEventListener('click', (event) => {
+            console.log(event.target.id)
+
+            document.getElementById(selectedCell).style.border = 'none'
+            document.getElementById(selectedCell).style.height = '2em'
+            document.getElementById(selectedCell).style.width = '2em'
+
+            event.target.style.border = '0.1em solid CornflowerBlue'
+            event.target.style.height = '1.8em'
+            event.target.style.width = '1.8em'
+
+            selectedCell = event.target.id
+        })
         newCell.appendChild(newCellText)
     }
     board.appendChild(newBox)
+}
+
+for (let i = 0; i < 10; i++) {
+    let numberButton = document.getElementById(String(i))
+    numberButton.addEventListener('click', (event) => {
+        console.log(event.target.id)
+        
+        if (!document.getElementById(selectedCell).readOnly) {
+            document.getElementById(selectedCell).value = ((event.target.id == 0) ? '' : event.target.id)
+            verifyNumbers()
+        }
+    })
 }
 
 board.addEventListener('input', (event) => {
@@ -92,7 +122,7 @@ board.addEventListener('input', (event) => {
     const regexNotDigit = /([^1-9])/gi
     event.target.value = event.target.value.replaceAll(regexNotDigit, '')
 
-    winDetection()
+    verifyNumbers()
 })
 
 function removeItem(item, array) {
@@ -188,24 +218,68 @@ function cellCandiates(cellId) {
 }
 
 function board2List() {
+    let returnArray =  [
+        [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined
+        ], [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined
+        ], [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined
+        ],
+        [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined
+        ], [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+        ], [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined
+        ],
+        [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined
+        ], [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined
+        ], [
+            undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            undefined, undefined, undefined
+        ]
+    ]
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
             let cellId = abc[i]+String(j)
 
-            state[i][j] = document.getElementById(cellId).value
+            returnArray[i][j] = document.getElementById(cellId).value
+            return returnArray
         }
     }
 }
 
-function list2Board() {
+function list2Board(array) {
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
             let cellId = abc[i]+String(j)
 
-            document.getElementById(cellId).value = state[i][j]
+            document.getElementById(cellId).value = array[i][j]
         }
     }
 }
+
+
 
 function fillBoard(cluesRemoved) {
 
@@ -254,7 +328,7 @@ function fillBoard(cluesRemoved) {
 
     //Board is now filled
 
-    board2List()
+    state = board2List()
 
     for (let i = 0; i < cluesRemoved; i++) {
         let cellId = randomId()

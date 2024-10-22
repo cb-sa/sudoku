@@ -7,12 +7,20 @@
     <link href="styles.css" rel="stylesheet"></link>
 </head>
 <body>
-    <h1>Sudoku</h1>
+    <h1 class="unselectable">Sudoku</h1>
 
+    <div id="settings">
+        <label for="flagIncorrectCandidates" class="unselectable">Flag Incorrect Cells</label>
+        <label class="switch">
+            <input type="checkbox" id="flagIncorrectCandidates">
+            <span class="slider round"></span>
+        </label>
+    </div>
+    
     <div id="game">
     </div>
 
-    <div id="numbers">
+    <div id="numbers" class="unselectable">
         <div id="1" class="number">
             1
         </div>

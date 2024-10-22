@@ -40,6 +40,7 @@ var state = [
     ]
 ]
 
+var flagIncorrectCandidates = false
 var selectedCell = 'a0'
 
 const board = document.getElementById('game')
@@ -50,24 +51,54 @@ function duplicateExists(arr) {
 }
 //https://stackoverflow.com/questions/49215358/checking-for-duplicate-strings-in-javascript-array
 
-function verifyNumbers() {
-    let count = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+function updateNumbers(count) {
     for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
-            let cellId = abc[i]+String(j)
+        if (count[i] >= 9) {
+            document.getElementById(i+1).classList.add('completed')
+        } else {
+            document.getElementById(i+1).classList.remove('completed')
+        }
+    }
+}
 
-            if (!document.getElementById(cellId).value == ''){
-                count[Number(document.getElementById(cellId).value)-1]++
-                if (!cellCandiates(cellId).includes(document.getElementById(cellId).value) && !document.getElementById(cellId).hasAttribute('readonly')) {
-                    document.getElementById(cellId).style.color = 'red'
-                } else {
-                    document.getElementById(cellId).style.color = ''
+document.getElementById('flagIncorrectCandidates').addEventListener('change', (event) => {
+    flagIncorrectCandidates = event.target.checked
+
+    if (flagIncorrectCandidates) {
+        verifyNumbers()
+    } else {
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                let cellId = abc[i]+String(j)
+    
+                document.getElementById(cellId).style.color = ''
+            }
+            document.getElementById(String(i)).classList.remove('completed')
+        }
+    }
+    
+})
+
+function verifyNumbers() {
+    if (flagIncorrectCandidates) {
+        let count = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                let cellId = abc[i]+String(j)
+
+                if (!document.getElementById(cellId).value == ''){
+                    count[Number(document.getElementById(cellId).value)-1]++
+                    if (!cellCandiates(cellId).includes(document.getElementById(cellId).value) && !document.getElementById(cellId).hasAttribute('readonly')) {
+                        document.getElementById(cellId).style.color = 'red'
+                    } else {
+                        document.getElementById(cellId).style.color = ''
+                    }
                 }
             }
         }
-    }
 
-    console.log(count)
+        updateNumbers(count)
+    }
 }
 
 const abc = 'abcdefghijklmnopqrstuvwxyz'
@@ -76,21 +107,19 @@ for (let i = 0; i < 9; i++) {
     let newBox = document.createElement('div')
     newBox.className = 'box'
     for (let j = 0; j < 9; j++) {
-        let newCell = document.createElement('div')
+        let newCell = document.createElement('input')
         let cellId = abc[i]+String(j)
 
         newCell.className = 'cell'
+        newCell.id = cellId
         newBox.appendChild(newCell)
 
-        let newCellText = document.createElement('input')
-        newCellText.type = 'text'
-        newCellText.id = cellId
-        newCellText.addEventListener('click', (event) => {
+        newCell.addEventListener('click', (event) => {
             console.log(event.target.id)
 
-            document.getElementById(selectedCell).style.border = 'none'
-            document.getElementById(selectedCell).style.height = '2em'
-            document.getElementById(selectedCell).style.width = '2em'
+            document.getElementById(selectedCell).style.border = ''
+            document.getElementById(selectedCell).style.height = ''
+            document.getElementById(selectedCell).style.width = ''
 
             event.target.style.border = '0.1em solid CornflowerBlue'
             event.target.style.height = '1.8em'
@@ -98,7 +127,6 @@ for (let i = 0; i < 9; i++) {
 
             selectedCell = event.target.id
         })
-        newCell.appendChild(newCellText)
     }
     board.appendChild(newBox)
 }

@@ -40,10 +40,11 @@ var state = [
     ]
 ]
 
-var flagIncorrectCandidates = false
 var selectedCell = 'a0'
 
 const board = document.getElementById('game')
+
+var settings = document.getElementById('settings')
 
 
 function duplicateExists(arr) {
@@ -53,41 +54,67 @@ function duplicateExists(arr) {
 
 function updateNumbers(count) {
     for (let i = 0; i < 9; i++) {
-        if (count[i] >= 9) {
+        if (count[i] == 9) {
             document.getElementById(i+1).classList.add('completed')
+            document.getElementById(i+1).classList.remove('overfilled')
+        } else if (count[i] > 9) {
+            document.getElementById(i+1).classList.add('overfilled')
+            document.getElementById(i+1).classList.remove('completed')
         } else {
             document.getElementById(i+1).classList.remove('completed')
+            document.getElementById(i+1).classList.remove('overfilled')
         }
     }
 }
 
-document.getElementById('flagIncorrectCandidates').addEventListener('change', (event) => {
-    flagIncorrectCandidates = event.target.checked
+function initSettings() {
+    var flagContradictions = document.getElementById('flagContradictions').checked
+    var showNumbersAmount = document.getElementById('showNumbersAmount').checked
 
-    if (flagIncorrectCandidates) {
-        verifyNumbers()
-    } else {
-        for (let i = 0; i < 9; i++) {
-            for (let j = 0; j < 9; j++) {
-                let cellId = abc[i]+String(j)
-    
-                document.getElementById(cellId).style.color = ''
+    document.getElementById('flagContradictions').addEventListener('change', (event) => {
+        flagContradictions = event.target.checked
+
+        if (flagContradictions) {
+            verifyNumbers()
+        } else {
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    let cellId = abc[i]+String(j)
+        
+                    document.getElementById(cellId).style.color = ''
+                }
             }
-            document.getElementById(String(i)).classList.remove('completed')
         }
+        
+    })
+
+    document.getElementById('showNumbersAmount').addEventListener('change', (event) => {
+        showNumbersAmount = event.target.checked
+
+        if (showNumbersAmount) {
+            document.getElementById('numbers').style.display = '';
+        } else {
+            document.getElementById('numbers').style.display = 'none'
+        }
+    })
+
+    if (showNumbersAmount) {
+        document.getElementById('numbers').style.display = '';
+    } else {
+        document.getElementById('numbers').style.display = 'none'
     }
-    
-})
+}
 
 function verifyNumbers() {
-    if (flagIncorrectCandidates) {
-        let count = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        for (let i = 0; i < 9; i++) {
-            for (let j = 0; j < 9; j++) {
-                let cellId = abc[i]+String(j)
+    let count = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-                if (!document.getElementById(cellId).value == ''){
-                    count[Number(document.getElementById(cellId).value)-1]++
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            let cellId = abc[i]+String(j)
+
+            if (!document.getElementById(cellId).value == ''){
+                count[Number(document.getElementById(cellId).value)-1]++
+                if (flagContradictions) {
                     if (!cellCandiates(cellId).includes(document.getElementById(cellId).value) && !document.getElementById(cellId).hasAttribute('readonly')) {
                         document.getElementById(cellId).style.color = 'red'
                     } else {
@@ -96,8 +123,31 @@ function verifyNumbers() {
                 }
             }
         }
+    }
+    updateNumbers(count)
+    
 
-        updateNumbers(count)
+    // Win detection
+    gameWon = true
+
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            let cellId = abc[i]+String(j)
+            if (!document.getElementById(cellId).value == ''){
+                count[Number(document.getElementById(cellId).value)-1]++
+                if (!cellCandiates(cellId).includes(document.getElementById(cellId).value) && !document.getElementById(cellId).hasAttribute('readonly')) {
+                    gameWon = false
+                }
+            } else {
+                gameWon = false
+            }
+        }
+    }
+
+    if (gameWon) {
+        if (confirm('You won!\nNew game?')) {
+            fillBoard(51)
+        }
     }
 }
 
@@ -152,6 +202,8 @@ board.addEventListener('input', (event) => {
 
     verifyNumbers()
 })
+
+initSettings()
 
 function removeItem(item, array) {
     let index = array.indexOf(item)
@@ -352,6 +404,7 @@ function fillBoard(cluesRemoved) {
 
         console.log('Valid board found!')
         validBoard = true
+        hideSettings()
     }
 
     //Board is now filled
@@ -367,6 +420,18 @@ function fillBoard(cluesRemoved) {
 
 }
 
+function displaySettings() {
+    settings.showModal()    
+}
 
+function hideSettings() {
+    settings.close()
+}
+
+settings.addEventListener('click', (event) => {
+    if (event.target.dataset.safe != 'true') {
+        hideSettings();
+    }
+});
 
 fillBoard(51)

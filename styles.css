@@ -148,6 +148,66 @@ textarea:focus, input:focus{
     user-select: none;
   }
 
-  #settings {
-    margin: 0.2em;
-  }
+#settings {
+  margin: 0.2em;
+}
+
+.button {
+  font-family: inherit;
+  font-size: calc(13*var(--switch-scale));
+  border: 0;
+  background-color: rgba(0,0,0,0);
+}
+
+.button.icon{
+  border-radius: 50%;
+  height: 1em;
+  width: 1em;
+}
+
+.button.large {
+  height: 1.75em;
+  width: 1.75em;
+  font-size: calc(22.75*var(--switch-scale))
+}
+
+::backdrop {
+  background-image: linear-gradient(45deg, magenta, cyan);
+  opacity: 0.4;
+}
+
+/*https://stackoverflow.com/questions/1205457/how-to-design-a-css-for-a-centered-floating-confirm-dialog*/
+/*https://stackoverflow.com/questions/50037663/how-to-close-a-native-html-dialog-when-clicking-outside-with-javascript*/
+
+dialog {
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -ms-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+  padding: 0;
+}
+
+#settingsSafeSpace {
+  padding: 0.5em;
+  width: 26em;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.floatLeft {
+  float: left;
+}
+
+.floatRight {
+  float: right;
+}
+
+.settingsLine {
+  height: 1em;
+  margin: 0.5em;
+}

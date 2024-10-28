@@ -5,17 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sudoku</title>
     <link href="styles.css" rel="stylesheet"></link>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-    <h1 class="unselectable">Sudoku</h1>
-
-    <div id="settings">
-        <label for="flagIncorrectCandidates" class="unselectable">Flag Incorrect Cells</label>
-        <label class="switch">
-            <input type="checkbox" id="flagIncorrectCandidates">
-            <span class="slider round"></span>
-        </label>
-    </div>
+    <h1 style="display: inline;">Sudoku</h1> <button class="button large icon" onclick="displaySettings()">⚙️</button>
     
     <div id="game">
     </div>
@@ -52,7 +45,38 @@
             X
         </div>
     </div>
-    <button onclick="fillBoard(51)">New Board</button>
+
+    <dialog id="settings">
+        <div id="settingsSafeSpace" data-safe="true">
+            <div id="settingsTopBar" data-safe="true">
+                <p data-safe="true" class="floatLeft">Settings</p>
+                <button class="button floatRight" onclick="hideSettings()" data-safe="true" class="button icon">x</button>
+            </div>
+
+            <br>
+
+            <div id="settingsBottom">
+                <div class="settingsLine">
+                    <button onclick="if(confirm('Do you want to generate a new board?')){ fillBoard(51) }" data-safe="true" class="floatLeft button">New Board</button>
+                    <button onclick="if(confirm('Do you want to generate a new board?')){ fillBoard(51) }" data-safe="true" class="floatRight button icon">&#x27F3;</button>
+                </div>
+                <div class="settingsLine">
+                    <label for="flagContradictions" class="unselectable floatLeft" data-safe="true">Flag Contradictions</label>
+                    <label class="switch floatRight" data-safe="true" for="flagContradictions">
+                        <input type="checkbox" id="flagContradictions" data-safe="true" checked>
+                        <span class="slider round" data-safe="true"></span>
+                    </label>
+                </div>
+                <div class="settingsLine" data-safe="true">
+                    <label for="showNumbersAmount" data-safe="true" class="unselectable floatLeft">Show Available Numbers</label>
+                    <label class="switch floatRight" data-safe="true" for="showNumbersAmount">
+                        <input type="checkbox" id="showNumbersAmount" data-safe="true">
+                        <span class="slider round" data-safe="true"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </dialog>
 
     <script src="sudoku.js"></script>
 </body>

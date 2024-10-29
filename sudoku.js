@@ -40,12 +40,25 @@ var state = [
     ]
 ]
 
-var selectedCell = 'a0'
+var selectedCell = 'e4'
 
 const board = document.getElementById('game')
 
 var settings = document.getElementById('settings')
 
+const boardIdLUT = [
+    ['a0', 'a1', 'a2', 'b0', 'b1', 'b2', 'c0', 'c1', 'c2'],
+    ['a3', 'a4', 'a5', 'b3', 'b4', 'b5', 'c3', 'c4', 'c5'],
+    ['a6', 'a7', 'a8', 'b6', 'b7', 'b8', 'c6', 'c7', 'c8'],
+    ['d0', 'd1', 'd2', 'e0', 'e1', 'e2', 'f0', 'f1', 'f2'],
+    ['d3', 'd4', 'd5', 'e3', 'e4', 'e5', 'f3', 'f4', 'f5'],
+    ['d6', 'd7', 'd8', 'e6', 'e7', 'e8', 'f6', 'f7', 'f8'],
+    ['g0', 'g1', 'g2', 'h0', 'h1', 'h2', 'i0', 'i1', 'i2'],
+    ['g3', 'g4', 'g5', 'h3', 'h4', 'h5', 'i3', 'i4', 'i5'],
+    ['g6', 'g7', 'g8', 'h6', 'h7', 'h8', 'i6', 'i7', 'i8']
+]
+
+const abc = 'abcdefghijklmnopqrstuvwxyz'
 
 function duplicateExists(arr) {
     return new Set(arr).size !== arr.length
@@ -151,7 +164,18 @@ function verifyNumbers() {
     }
 }
 
-const abc = 'abcdefghijklmnopqrstuvwxyz'
+function updateSelectedCell(newCell) {
+    document.getElementById(selectedCell).style.border = ''
+    document.getElementById(selectedCell).style.height = ''
+    document.getElementById(selectedCell).style.width = ''
+
+    document.getElementById(newCell).style.border = '0.1em solid CornflowerBlue'
+    document.getElementById(newCell).style.height = '1.8em'
+    document.getElementById(newCell).style.width = '1.8em'
+
+    selectedCell = newCell
+    document.getElementById(selectedCell).focus()
+}
 
 for (let i = 0; i < 9; i++) {
     let newBox = document.createElement('div')
@@ -167,15 +191,7 @@ for (let i = 0; i < 9; i++) {
         newCell.addEventListener('click', (event) => {
             console.log(event.target.id)
 
-            document.getElementById(selectedCell).style.border = ''
-            document.getElementById(selectedCell).style.height = ''
-            document.getElementById(selectedCell).style.width = ''
-
-            event.target.style.border = '0.1em solid CornflowerBlue'
-            event.target.style.height = '1.8em'
-            event.target.style.width = '1.8em'
-
-            selectedCell = event.target.id
+            updateSelectedCell(event.target.id)
         })
     }
     board.appendChild(newBox)
@@ -222,10 +238,48 @@ function randomId() {
     return randomBox+String(randomCell)
 }
 
+function cell2Coord(cellId) {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            if (boardIdLUT[i][j] == cellId) {
+                return [i,j]
+            } 
+        }
+    }
+}
+
+function coord2Cell(x, y) {
+    return boardIdLUT[x][y]
+}
+
+function shiftSelectedUp() {
+    cellCoord = cell2Coord(selectedCell)
+
+    updateSelectedCell(coord2Cell(cellCoord[0]-1, cellCoord[1]))
+}
+
+function shiftSelectedRight() {
+    cellCoord = cell2Coord(selectedCell)
+
+    updateSelectedCell(coord2Cell(cellCoord[0], cellCoord[1]+1))
+}
+
+function shiftSelectedDown() {
+    cellCoord = cell2Coord(selectedCell)
+
+    updateSelectedCell(coord2Cell(cellCoord[0]+1, cellCoord[1]))
+}
+
+function shiftSelectedLeft() {
+    cellCoord = cell2Coord(selectedCell)
+
+    updateSelectedCell(coord2Cell(cellCoord[0], cellCoord[1]-1))
+}
+
 function cellCandiates(cellId) {
     let candiates = ['1','2','3','4','5','6','7','8','9']
-    let box = cellId.split('')[0]
-    let boxId = cellId.split('')[1]
+    let box = cellId[0]
+    let boxId = cellId[1]
 
     // Remove candiates already present within cell
     for (let i = 0; i < 9; i++) {
@@ -434,4 +488,34 @@ settings.addEventListener('click', (event) => {
     }
 });
 
+updateSelectedCell('e4')
+
 fillBoard(51)
+
+board.addEventListener('keydown', (event) => {
+    if (event.code == 'ArrowUp') {
+        shiftSelectedUp()
+    } else if (event.code == 'ArrowRight') {
+        shiftSelectedRight()
+    } else if (event.code == 'ArrowDown') {
+        shiftSelectedDown()
+    } else if (event.code == 'ArrowLeft') {
+        shiftSelectedLeft()
+    }
+})
+
+//Arrow keys to move around
+
+/*
+
+a0 a1 a2 b0 b1 b2 c0 c1 c2
+a3 a4 a5 b3 b4 b5 c3 c4 c5
+a6 a7 a8 b6 b7 b8 c6 c7 c8
+d0 d1 d2 e0 e1 e2 f0 f1 f2
+d3 d4 d5 e3 e4 e5 f3 f4 f5
+d6 d7 d8 e6 e7 e8 f6 f7 f8
+g0 g1 g2 h0 h1 h2 i0 i1 i2
+g3 g4 g5 h3 h4 h5 i3 i4 i5
+g6 g7 g8 h6 h7 h8 i6 i7 i8
+
+*/
